@@ -9,9 +9,9 @@ private:
     std::string name;
 
 public:
-    Toy(std::string name) : name(name){};
-    Toy() : Toy("NoName") {};
-    std::string getName() const;
+    Toy() : name ("noName"){std::cout << "Toy is created: " << name << ", " << this << "\n";};
+    Toy(std::string name) : name (name){std::cout << "Toy is created: " << name << ", " << this << "\n";};
+    ~Toy();
 };
 
 #endif //TASK_31_1_TOY_H

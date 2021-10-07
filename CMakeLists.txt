@@ -5,4 +5,4 @@ set(CMAKE_CXX_STANDARD 14)
 
 add_executable(Task_31_1
         main.cpp
-        src/SharedToyPtr.cpp src/Toy.cpp src/Dog.cpp include/Dog.h)
+        src/SharedToyPtr.cpp src/Toy.cpp src/ControlBlock.cpp)

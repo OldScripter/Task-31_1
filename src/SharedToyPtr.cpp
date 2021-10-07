@@ -1,108 +1,83 @@
 #include "../include/SharedToyPtr.h"
 
-SharedToyPtr::SharedToyPtr(Toy *toy)
+SharedToyPtr makeSharedToy(std::string name)
 {
-    object = toy;
-    if (object == nullptr)
-        return;
+    return {name};
+}
 
-    try
+SharedToyPtr makeSharedToy(Toy* toy)
+{
+    if (toy == nullptr)
+        return SharedToyPtr();
+    else
+        return {toy};
+}
+
+unsigned long SharedToyPtr::getUseCount() const {
+    if (controlBlock == nullptr)
     {
-        useCount = new int(1);
+        return 0;
     }
-    catch(...)
+    else
     {
-        delete object;
-        std::cerr << "Bad counter allocation.\n";
+        return controlBlock->getUseCount();
     }
 }
 
-SharedToyPtr::SharedToyPtr(std::string name)
+void SharedToyPtr::reset()
 {
-    try
-    {
-        object = new Toy(name);
-    }
-    catch (...)
-    {
-        std::cerr << "Bad counter allocation.\n";
+    if (controlBlock == nullptr)
         return;
-    }
-
-    try
+    else
     {
-        useCount = new int(1);
-    }
-    catch(...)
-    {
-        delete object;
-        std::cerr << "Bad counter allocation.\n";
+        controlBlock->decrementUseCount();
+        controlBlock = nullptr;
     }
 }
 
-SharedToyPtr::SharedToyPtr(const SharedToyPtr & other)
+SharedToyPtr::SharedToyPtr(const SharedToyPtr &other)
 {
-    object = other.object;
-    useCount = other.useCount;
+    if (other.controlBlock != nullptr)
+    {
+        this->controlBlock = other.controlBlock;
+        this->controlBlock->incrementUseCount();
+    }
+}
 
-    if (object == nullptr)
-        return;
+SharedToyPtr &SharedToyPtr::operator=(const SharedToyPtr &other){
 
-    ++*useCount;
+    if (this->controlBlock == other.controlBlock)
+        return *this;
+    else if (this->controlBlock != nullptr)
+        this->controlBlock->decrementUseCount();
+
+    this->controlBlock = other.controlBlock;
+
+    if (this->controlBlock != nullptr)
+        this->controlBlock->incrementUseCount();
+    return *this;
+}
+
+Toy *SharedToyPtr::get() {
+    if (controlBlock == nullptr)
+    {
+        return nullptr;
+    }
+    else
+    {
+        return controlBlock->getToy();
+    }
+}
+
+ControlBlock *SharedToyPtr::getControlBlock() {
+    return controlBlock;
 }
 
 SharedToyPtr::~SharedToyPtr()
 {
-    if (object == nullptr)
-        return;
-    else
+    std::cout << "SharedPtr is deleted " << this << "\n";
+    if (controlBlock != nullptr)
     {
-        --*useCount;
-        if (*useCount <= 0)
-        {
-            delete object;
-            delete useCount;
-            object = nullptr;
-            useCount = nullptr;
-        }
+        controlBlock->decrementUseCount();
     }
 }
-
-SharedToyPtr & SharedToyPtr::operator=(const SharedToyPtr & other)
-{
-    if (this == &other || other.object == nullptr || other.useCount == nullptr)
-    {
-        return *this;
-    }
-
-    if (object == nullptr && useCount == nullptr)
-    {
-        object = other.object;
-        useCount = other.useCount;
-        ++*useCount;
-    }
-    return *this;
-}
-
-SharedToyPtr SharedToyPtr::makeShared(std::string name)
-{
-    Toy *toy = new Toy(name);
-    return SharedToyPtr(toy);
-}
-
-SharedToyPtr SharedToyPtr::makeShared(Toy *toy) {
-    return SharedToyPtr(toy);
-}
-
-Toy *SharedToyPtr::get() {
-    return object;
-}
-
-int SharedToyPtr::getUseCount() {
-    return *useCount;
-}
-
-
-
-
-

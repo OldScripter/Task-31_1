@@ -1,5 +1,6 @@
 #include "../include/Toy.h"
 
-std::string Toy::getName() const {
-    return this->name;
+Toy::~Toy()
+{
+    std::cout << "Toy is deleted " << this << "\n";;
 }
